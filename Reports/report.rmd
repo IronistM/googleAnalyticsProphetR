@@ -1,0 +1,202 @@
+---
+title: "Google Analytics Anomaly Detection"
+output:
+  html_notebook: 
+    fig_caption: yes
+    highlight: zenburn
+    theme: flatly
+    toc: yes
+    toc_depth: 1
+  pdf_document: default
+  word_document: default
+  html_document:
+    fig_caption: yes
+    highlight: pygments
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_depth: 1
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r init stuff , message=FALSE, warning=FALSE, include=FALSE}
+## Assuming your working directory is sample-r-project's below
+# Required packages
+source("../requirements.R")
+
+## Functions needed
+source("../Functions/functions.R")
+
+## Theme(s) for ggthemr
+# source("../Configuration/custom_ggthemr.R")
+
+## Project settings
+source("../Configuration/project_settings.R")
+
+## Authentication with googleapis -----------------------------------
+options(
+  googleAuthR.scopes.selected =
+    c(
+      # "https://www.googleapis.com/auth/webmasters",
+      "https://www.googleapis.com/auth/analytics",
+      "https://www.googleapis.com/auth/analytics.readonly",
+      "https://www.googleapis.com/auth/tagmanager.readonly"
+      # "https://www.googleapis.com/auth/devstorage.full_control",
+      # "https://www.googleapis.com/auth/cloud-platform",
+      # "https://www.googleapis.com/auth/bigquery",
+      # "https://www.googleapis.com/auth/bigquery.insertdata"
+    )
+)
+
+googleAuthR::gar_auth(".httr-oauth")
+# acc.list <- google_analytics_account_list()
+```
+# Getting data
+Let's get some data to start working with. At this point the data are coming from Google Analytics so in the following we need to setup the basic parameters
+
+
+```{r parameters setup, message=FALSE, warning=FALSE, include=FALSE}
+# Date range to fetch
+start <- floor_date(Sys.Date() - months(6), "month")
+end <- date(Sys.time()) - 1
+
+## Getting the GA data ------------------------------------------
+## Define the ID of the VIEW we need to fetch
+id <- "YOUR_VIEW_ID" # this is for the internal/legacy/YOU_NAME_IT...
+
+## Build the event list we are interested
+## in monitoring for the V1.0
+events_category <- c(
+  # YOUR_EVENTS_LIST
+)
+
+## Dimensions for breakdown
+dimensions <- c(
+  # YOUR_DIMENSIONS_LIST
+)
+# ## Parameters for the custom functions
+# direction <- "neg"
+# anoms <- 0.02
+```
+
+### Get the data
+
+Now, we are pulling the data from Google Analytics API using purrr's `map_df()`, which is awesome.
+
+```{r munge the data, echo=TRUE, fig.height=12, fig.width=15, message=FALSE, warning=FALSE, cache=TRUE}
+## Get the data from GA
+ga_data <- events_category %>%
+  map_df(~ get_ga_data(id, start, end, .x, breakdown_dimensions = dimensions))
+```
+
+In order to check that we actually got data we can get a summary of the `ga_data`.
+
+```{r inspect data from ga, echo=TRUE}
+# Summary of what we got from GA API
+# Look for strange things in the 'n_unique' column of dimensions
+# and 5-num summary of metrics (ie totalEvents)
+ga_data %>%
+  skimr::skim_to_wide()
+```
+
+Below we filter stuff we are *actually* interested in. Note that we have to do our own sanity check of inputs to the data that we pass to prophet object! This is out of the scope of the current implementation. So use the section below for passing over the constrains you'd like to.
+```{r filter out tablet, fig.height=12, fig.width=15, message=FALSE, warning=FALSE,echo=FALSE}
+data <- ga_data %>%
+  filter(deviceCategory != "tablet")
+
+## Let's keep the most important stuff
+channel_groups <- c("Direct", "Non Brand SEO", "Brand SEO", "SEM Brand", "SEM Non Brand")
+landing_groups <- c(
+  # YOUR_LANDING_PAGE_GROUP_LIST
+  )
+```
+
+## Run the prophet!
+Now we can move on with applying iteratively the prophet method to our own time series of data.
+```{r run the prophet, echo=TRUE, fig.height=12, fig.width=15, message=FALSE, warning=FALSE}
+## Apply the prophet prediction to each group
+prophet_data <- data %>%
+  filter(channelGrouping %in% channel_groups &
+           landingContentGroup1 %in% landing_groups) %>%
+  group_by_if(is.character) %>% # group by all dimensions present to `data`
+  nest() %>%
+  mutate(prophet_range = map_chr(data, ~ suppressWarnings(
+    get_prophet_prediction(.x[["totalEvents"]], start_date = start, verbose = TRUE)
+  ))) %>%
+  mutate(last_day = map_dbl(data, ~ last(.x[["totalEvents"]]))) %>% # this is the last day ; we'll compare against it
+  separate(prophet_range,
+           into = c("min", "estimate", "max"),
+           sep = ",") %>%
+  mutate(
+    prophet_lower_range = as.numeric(min),
+    prophet_estimate_point = as.numeric(estimate),
+    prophet_upper_range = as.numeric(max)
+  )
+```
+
+# Inspect predictions
+Let's check a random 10 rows of prediction along their actual value on the last day of the run.
+```{r inspect data, echo=FALSE, fig.height=12, fig.width=15, message=FALSE, warning=FALSE}
+prophet_data %>%
+  dplyr::select(-min, -max, -estimate, -data) %>%
+  mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2))) %>%
+  filter(prophet_lower_range > 0) %>% 
+  dplyr::select(-prophet_lower_range, -prophet_upper_range) %>%
+  sample_n(10)
+```
+
+# Get Alert
+Next, we pull all the deviating cases.    
+(*NOTE* : If this section is empty then we have no anomalous case)
+
+```{r plot data of interest, echo=TRUE, fig.height=12, fig.width=15, message=FALSE, warning=FALSE}
+## Apply the prophet prediction to each group
+alert_data <- prophet_data %>%
+  rowwise() %>%
+  filter(prophet_lower_range > 0) %>%
+  mutate(flag = if_else(
+    between(last_day, prophet_lower_range, prophet_upper_range),
+    0,
+    1
+  )) %>%
+  filter(flag > 0) %>%
+  dplyr::select(-min, -max, -estimate, -data) %>%
+  mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2)))
+```
+
+If there is a alerting case then we can get the plot of the recent history to get a better understanding of what is going on.
+
+```{r plot the alerting events, echo=TRUE, fig.height=12, fig.width=15, message=FALSE, warning=FALSE}
+if (length(alert_data) > 0) {
+  alert_data %>%
+    knitr::kable()
+  ## We can create now the graphs
+  alert_graph <- prophet_data %>%
+    rowwise() %>%
+    filter(prophet_lower_range > 0) %>%
+    mutate(flag = if_else(
+      between(last_day, prophet_lower_range, prophet_upper_range),
+      0,
+      1
+    )) %>%
+    filter(flag > 0) %>%
+    dplyr::select(-min, -max, -estimate) %>%
+    ungroup() %>%
+    mutate(prophet_gg = map(
+      data,
+      ~ get_prophet_prediction_graph(
+        .$"totalEvents",
+        start_date = start
+      )
+    ))
+
+  # Summary stats
+  alert_graph %>%
+    skimr::skim_to_wide()
+
+  # Plot the alert evolution
+  alert_graph %$%
+    walk(prophet_gg, plot)
+}
+```
