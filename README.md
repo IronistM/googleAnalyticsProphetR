@@ -10,8 +10,18 @@ In this attempt we are taking a data-driven approach to detecting deviations fro
 In practice, prophet does really well in point estimation but we can also get upper and lower prediction bounds. Actually, we will trigger an alert when the actual value is outside these bounds.
 
 # Under the hood
-To create the we have wrapped somethings around the following functions that are originating from [googleAnalyticsR()] and [prophet()] :
+To create the we have wrapped somethings around the following functions that are originating from [googleAnalyticsR()]() and [prophet()]() :
 
-- [get_ga_data()]()
-- [get_prophet_prediction()]()
-- [get_prophet_prediction_graph()]()
+- [`get_ga_data()`]()
+- [`get_prophet_prediction()`]()
+- [`get_prophet_prediction_graph()`]()
+
+*Side note* : Actually there is another function that is based on Twitter's awesome [AnomalyDetection]() package (only for R).
+
+# Example(s)
+There is a sample RNotebook under the Reports folder ([report.rmd]()) that you can use with minimal configuration.
+
+## Configuration
+As usual you will need to have all the packages mentioned on the [requirements.R]() file.
+
+Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](), here I authenticate once and then reuse the `.httr-oauth`.

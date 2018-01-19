@@ -3,13 +3,13 @@ require(googleAnalyticsR)
 require(lubridate)
 require(magrittr)
 require(AnomalyDetection)
-require(hrbrthemes)
+require(hrbrthemes) # this comes from github : devtools::install_github("hrbrmstr/hrbrthemes")
 require(ggplot2)
 require(plyr)
 require(dplyr) # need to load plyr before dplyr & not the other way!
 require(tidyr)
 require(stringr)
-require(janitor)
+require(skimr)  # this comes from github : devtools::install_github("ropenscilabs/skimr")
 require(purrr)
 
 ## TODO : This would better if everything was in CRAN
