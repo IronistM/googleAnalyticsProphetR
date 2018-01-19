@@ -22,6 +22,13 @@ To create the we have wrapped somethings around the following functions that are
 There is a sample RNotebook under the Reports folder ([report.rmd]()) that you can use with minimal configuration.
 
 ## Configuration
+### Packages
 As usual you will need to have all the packages mentioned on the [requirements.R]() file.
 
-Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](), here I authenticate once and then reuse the `.httr-oauth`.
+### Authentication
+Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](), in the example I authenticate once and then reuse the `.httr-oauth`. A deeper explanation of authentication can be found [here]().
+
+### Parameters
+You will need to pass your `GA_VIEW_ID` for the API calls and your dimensions and metric of interest (default :  `totalEvents`). Since we need to have a time series by the definition of the problem `date` is always added in the dimensions.
+
+
