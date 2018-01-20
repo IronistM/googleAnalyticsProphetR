@@ -29,6 +29,30 @@ As usual you will need to have all the packages mentioned on the [requirements.R
 Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](), in the example I authenticate once and then reuse the `.httr-oauth`. A deeper explanation of authentication can be found [here]().
 
 ### Parameters
-You will need to pass your `GA_VIEW_ID` for the API calls and your dimensions and metric of interest (default :  `totalEvents`). Since we need to have a time series by the definition of the problem `date` is always added in the dimensions.
+You will need to pass your `GA_VIEW_ID` for the API calls and your dimensions and metric of interest (default :  `totalEvents`). Note, that since we need to have a time series by the definition of the problem `date` is always added in the dimensions.
 
+```R
+## Define the ID of the VIEW we need to fetch
+id <- "YOUR_VIEW_ID" # this is for the internal/legacy/YOU_NAME_IT...
+
+## Build the event list we are interested
+## in monitoring for the V1.0
+events_category <- c(
+  # YOUR_EVENTS_LIST
+)
+
+## Dimensions for breakdown
+dimensions <- c(
+  # YOUR_DIMENSIONS_LIST
+)
+```
+
+## Acquire the data
+Now, we are pulling the data from Google Analytics API using purrr's `map_df()`, which is awesome.
+
+```R
+## Get the data from GA
+ga_data <- events_category %>%
+  map_df(~ get_ga_data(id, start, end, .x, breakdown_dimensions = dimensions))
+```
 
