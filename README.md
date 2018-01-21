@@ -48,11 +48,33 @@ dimensions <- c(
 ```
 
 ## Acquire the data
-Now, we are pulling the data from Google Analytics API using purrr's `map_df()`, which is awesome.
+Now, we are pulling the data from Google Analytics API. We are pushing the `events_category` as a paremeter to the `get_ga_data` and getting a dataframe back using purrr's `map_df()` ; which is awesome.
 
 ```R
 ## Get the data from GA
 ga_data <- events_category %>%
   map_df(~ get_ga_data(id, start, end, .x, breakdown_dimensions = dimensions))
 ```
+Now, we can check what we got data via a summary of the `ga_data`. You can use base [`summary`]() or [`skimr`](); I use the second one.
 
+```{r inspect data from ga, echo=TRUE}
+# Summary of what we got from GA API
+# Look for strange things in the 'n_unique' column of dimensions
+# and 5-num summary of metrics (ie totalEvents)
+ga_data %>%
+  skimr::skim_to_wide()
+```
+
+### Interlude : The tricky part
+You will need to do your own sanity check of inputs to the data that we pass to prophet object! This is out of the scope of the current implementation. So use the section below for passing over the constrains you'd like to, in other words crete filters...
+
+```{r filter out tablet, fig.height=12, fig.width=15, message=FALSE, warning=FALSE,echo=FALSE}
+data <- ga_data %>%
+  filter(deviceCategory != "tablet")
+
+## Let's keep the most important stuff
+channel_groups <- c("Direct", "Non Brand SEO", "Brand SEO", "SEM Brand", "SEM Non Brand")
+landing_groups <- c(
+  # YOUR_LANDING_PAGE_GROUP_LIST
+  )
+```
