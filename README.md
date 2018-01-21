@@ -28,6 +28,38 @@ As usual you will need to have all the packages mentioned on the [requirements.R
 ### Authentication
 Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](), in the example I authenticate once and then reuse the `.httr-oauth`. A deeper explanation of authentication can be found [here]().
 
+
+I handle more of this using the following chunk of code.
+
+```R
+# Required packages
+source("../requirements.R")
+
+## Functions needed
+source("../Functions/functions.R")
+
+## Project settings
+source("../Configuration/project_settings.R")
+
+## Authentication with googleapis -----------------------------------
+options(
+  googleAuthR.scopes.selected =
+    c(
+      # "https://www.googleapis.com/auth/webmasters",
+      "https://www.googleapis.com/auth/analytics",
+      "https://www.googleapis.com/auth/analytics.readonly",
+      "https://www.googleapis.com/auth/tagmanager.readonly"
+      # "https://www.googleapis.com/auth/devstorage.full_control",
+      # "https://www.googleapis.com/auth/cloud-platform",
+      # "https://www.googleapis.com/auth/bigquery",
+      # "https://www.googleapis.com/auth/bigquery.insertdata"
+    )
+)
+
+googleAuthR::gar_auth(".httr-oauth")
+```
+
+
 ### Parameters
 You will need to pass your `GA_VIEW_ID` for the API calls and your dimensions and metric of interest (default :  `totalEvents`). Note, that since we need to have a time series by the definition of the problem `date` is always added in the dimensions.
 
