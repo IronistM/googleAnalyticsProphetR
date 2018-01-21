@@ -12,9 +12,9 @@ In practice, prophet does really well in point estimation but we can also get up
 # Under the hood
 To create the we have wrapped somethings around the following functions that are originating from [`googleAnalyticsR`](https://github.com/MarkEdmondson1234/googleAnalyticsR) and [`prophet`](https://github.com/facebook/prophet) :
 
-- [`get_ga_data()`]()
-- [`get_prophet_prediction()`]()
-- [`get_prophet_prediction_graph()`]()
+- `get_ga_data()`
+- `get_prophet_prediction()`
+- `get_prophet_prediction_graph()`
 
 *Side note* : Actually there is another function that is based on Twitter's awesome [`AnomalyDetection`](https://github.com/twitter/AnomalyDetection) package (only for R).
 
