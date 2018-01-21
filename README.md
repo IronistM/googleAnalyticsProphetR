@@ -91,7 +91,7 @@ prophet_data %>%
   sample_n(10)
 ```
 
-# Get Alert
+### Get Alert
 Next, we pull all the deviating cases.    
 (*NOTE* : If this section is empty then we have no anomalous case)
 
@@ -109,5 +109,5 @@ alert_data <- prophet_data %>%
   dplyr::select(-min, -max, -estimate, -data) %>%
   mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2)))
 ```
-
+# Extension(s)
 Now, you can push the above into Slack (using [`SlackR`]()) or send an email (using [`blastula`]() for example).
