@@ -110,4 +110,4 @@ alert_data <- prophet_data %>%
   mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2)))
 ```
 
-Now, you can push the above into Slack (using [`SlackR`]()) or send an email (using [`blastula`]() for example.
+Now, you can push the above into Slack (using [`SlackR`]()) or send an email (using [`blastula`]() for example).
