@@ -57,7 +57,7 @@ ga_data <- events_category %>%
 ```
 Now, we can check what we got data via a summary of the `ga_data`. You can use base [`summary`]() or [`skimr`](); I use the second one.
 
-```{r inspect data from ga, echo=TRUE}
+```R
 # Summary of what we got from GA API
 # Look for strange things in the 'n_unique' column of dimensions
 # and 5-num summary of metrics (ie totalEvents)
@@ -66,9 +66,9 @@ ga_data %>%
 ```
 
 ### Interlude : The tricky part
-You will need to do your own sanity check of inputs to the data that we pass to prophet object! This is out of the scope of the current implementation. So use the section below for passing over the constrains you'd like to, in other words crete filters...
+You will need to do your own sanity check of inputs to the data that we pass to prophet object! This is out of the scope of the current implementation. So use the section below for passing over the constrains you'd like to, in other words create filters...
 
-```{r filter out tablet, fig.height=12, fig.width=15, message=FALSE, warning=FALSE,echo=FALSE}
+```R
 data <- ga_data %>%
   filter(deviceCategory != "tablet")
 
@@ -78,3 +78,36 @@ landing_groups <- c(
   # YOUR_LANDING_PAGE_GROUP_LIST
   )
 ```
+
+### Inspect predictions
+Let's check a random 10 rows of prediction along their actual value on the last day of the run.
+
+```R
+prophet_data %>%
+  dplyr::select(-min, -max, -estimate, -data) %>%
+  mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2))) %>%
+  filter(prophet_lower_range > 0) %>% 
+  dplyr::select(-prophet_lower_range, -prophet_upper_range) %>%
+  sample_n(10)
+```
+
+# Get Alert
+Next, we pull all the deviating cases.    
+(*NOTE* : If this section is empty then we have no anomalous case)
+
+```R
+## Apply the prophet prediction to each group
+alert_data <- prophet_data %>%
+  rowwise() %>%
+  filter(prophet_lower_range > 0) %>%
+  mutate(flag = if_else(
+    between(last_day, prophet_lower_range, prophet_upper_range),
+    0,
+    1
+  )) %>%
+  filter(flag > 0) %>%
+  dplyr::select(-min, -max, -estimate, -data) %>%
+  mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2)))
+```
+
+Now, you can push the above into Slack (using [`SlackR`]()) or send an email (using [`blastula`]() for example.
