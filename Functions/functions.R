@@ -58,21 +58,21 @@ get_ga_data <-
     } else {
       dims <- NULL
     }
-    googleAuthR::gar_auth(".httr-oauth")
+    # googleAuthR::gar_auth(".httr-oauth")
     # Create a dataframe
     df <- googleAnalyticsR::google_analytics(
       id = id,
-      start = startdate,
-      end = enddate,
+      date_range = c(startdate, enddate),
+      # start = startdate,
+      # end = enddate,
       metrics = c("totalEvents"),
       dimensions = c("date", "eventAction", breakdown_dimensions),
-      filters = paste("ga:eventAction=~", eventName, sep = ""),
+      filtersExpression = paste("ga:eventAction=~", eventName, sep = ""),
       samplingLevel = "WALK"
     )
     # colnames(df) <- c('date', 'eventName', 'counts')
     return(df)
   }
-
 
 ## A function to get next day's prediction ------------------------
 ## NOTE : When using namespace call (ie prophet::xxxxx)
