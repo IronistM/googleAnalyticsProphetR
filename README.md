@@ -5,28 +5,28 @@ Applying Facebook's prophet on Google Analytics data
 One the problems we have in Digital Analytics is figuring out when something has stopped recording or fires more frequently that it should (you know ; fire once per page vs per event).
 
 # Strategy
-In this attempt we are taking a data-driven approach to detecting deviations from the "expected" (ref: remains to be defined). One of the most accesible ways to get a estimation of "expected" is by using Facebook's [prophet]() API which is available both in R and Python. The proposed strategy is to create daily the prediction for the previous day and compare it to the actual count of events in discussion.
+In this attempt we are taking a data-driven approach to detecting deviations from the "expected" (ref: remains to be defined). One of the most accesible ways to get a estimation of "expected" is by using Facebook's [prophet](https://github.com/facebook/prophet) API which is available both in R and Python. The proposed strategy is to create daily the prediction for the previous day and compare it to the actual count of events in discussion.
 
 In practice, prophet does really well in point estimation but we can also get upper and lower prediction bounds. Actually, we will trigger an alert when the actual value is outside these bounds.
 
 # Under the hood
-To create the we have wrapped somethings around the following functions that are originating from [googleAnalyticsR()]() and [prophet()]() :
+To create the we have wrapped somethings around the following functions that are originating from [`googleAnalyticsR`](https://github.com/MarkEdmondson1234/googleAnalyticsR) and [`prophet`](https://github.com/facebook/prophet) :
 
 - [`get_ga_data()`]()
 - [`get_prophet_prediction()`]()
 - [`get_prophet_prediction_graph()`]()
 
-*Side note* : Actually there is another function that is based on Twitter's awesome [AnomalyDetection]() package (only for R).
+*Side note* : Actually there is another function that is based on Twitter's awesome [`AnomalyDetection`](https://github.com/twitter/AnomalyDetection) package (only for R).
 
 # Example(s)
-There is a sample RNotebook under the Reports folder ([report.rmd]()) that you can use with minimal configuration.
+There is a sample RNotebook under the Reports folder ([report.rmd](https://github.com/IronistM/googleAnalyticsProphetR/blob/master/Reports/report.rmd)) that you can use with minimal configuration.
 
 ## Configuration
 ### Packages
-As usual you will need to have all the packages mentioned on the [requirements.R]() file.
+As usual you will need to have all the packages mentioned on the [requirements.R](https://github.com/IronistM/googleAnalyticsProphetR/blob/master/requirements.R) file.
 
 ### Authentication
-Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](), in the example I authenticate once and then reuse the `.httr-oauth`. A deeper explanation of authentication can be found [here]().
+Then you will need to authenticate to Google via any method you like and is provide in [googleAuthR](https://github.com/MarkEdmondson1234/googleAuthR), in the example I authenticate once and then reuse the `.httr-oauth`. A deeper explanation of authentication can be found [here](http://code.markedmondson.me/googleAuthR/articles/google-authentication-types.html).
 
 
 I handle more of this using the following chunk of code.
@@ -87,7 +87,7 @@ Now, we are pulling the data from Google Analytics API. We are pushing the `even
 ga_data <- events_category %>%
   map_df(~ get_ga_data(id, start, end, .x, breakdown_dimensions = dimensions))
 ```
-Now, we can check what we got data via a summary of the `ga_data`. You can use base [`summary`]() or [`skimr`](); I use the second one.
+Now, we can check what we got data via a summary of the `ga_data`. You can use base [`summary`](http://stat.ethz.ch/R-manual/R-devel/library/base/html/summary.html) or [`skimr`](https://github.com/ropenscilabs/skimr); I use the second one.
 
 ```R
 # Summary of what we got from GA API
@@ -142,4 +142,4 @@ alert_data <- prophet_data %>%
   mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2)))
 ```
 # Extension(s)
-Now, you can push the above into Slack (using [`SlackR`]()) or send an email (using [`blastula`]() for example).
+Now, you can push the above into Slack (using [`Slackr`](https://github.com/hrbrmstr/slackr)) or send an email (using [`blastula`](https://github.com/rich-iannone/blastula) for example).
