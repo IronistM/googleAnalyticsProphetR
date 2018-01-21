@@ -79,7 +79,7 @@ landing_groups <- c(
   )
 ```
 
-### Inspect predictions
+## Inspect predictions
 Let's check a random 10 rows of prediction along their actual value on the last day of the run.
 
 ```R
