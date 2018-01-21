@@ -91,7 +91,7 @@ prophet_data %>%
   sample_n(10)
 ```
 
-### Get Alert
+## Get Alert
 Next, we pull all the deviating cases.    
 (*NOTE* : If this section is empty then we have no anomalous case)
 
