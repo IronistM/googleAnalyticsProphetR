@@ -61,14 +61,14 @@ get_ga_data <-
     # googleAuthR::gar_auth(".httr-oauth")
     # Create a dataframe
     df <- googleAnalyticsR::google_analytics(
-      id = id,
+      viewId = id,
       date_range = c(startdate, enddate),
       # start = startdate,
       # end = enddate,
       metrics = c("totalEvents"),
       dimensions = c("date", "eventAction", breakdown_dimensions),
       filtersExpression = paste("ga:eventAction=~", eventName, sep = ""),
-      samplingLevel = "WALK"
+      samplingLevel = "LARGE"
     )
     # colnames(df) <- c('date', 'eventName', 'counts')
     return(df)
