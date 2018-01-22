@@ -49,7 +49,7 @@ get_ga_data <-
            startdate,
            enddate,
            eventName,
-           breakdown_dimensions = NULL) {
+           breakdown_dimensions = NULL, ...) {
     # Create a string concat of extra dimensions
     if (!is.null(breakdown_dimensions)) {
       dims <- paste(breakdown_dimensions,
@@ -67,8 +67,10 @@ get_ga_data <-
       # end = enddate,
       metrics = c("totalEvents"),
       dimensions = c("date", "eventAction", breakdown_dimensions),
-      filtersExpression = paste("ga:eventAction=~", eventName, sep = ""),
-      samplingLevel = "LARGE"
+      filtersExpression = paste("ga:eventAction=~", eventName, sep = ""), 
+      anti_sample = TRUE,
+      samplingLevel = "LARGE", 
+      ...
     )
     # colnames(df) <- c('date', 'eventName', 'counts')
     return(df)
