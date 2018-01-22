@@ -120,7 +120,35 @@ landing_groups <- c(
   # YOUR_LANDING_PAGE_GROUP_LIST
   )
 ```
+## Get predictions
 
+```R
+## Apply the prophet prediction to each group
+prophet_data <- data %>%
+  filter(channelGrouping %in% channel_groups &
+           landingContentGroup1 %in% landing_groups) %>%
+  filter(sourcePropertyDisplayName == "DHH - Greece - Efood - Web - Live") %>%
+  group_by_if(is.character) %>% # group by all dimensions present to `data`
+  # filter(date > today() - days(60)) %>%
+  arrange(date) %>% # order by date explicitly!
+  nest() %>%
+  mutate(n_rows = map_dbl(data, ~ suppressWarnings(
+    length(.x[["date"]]))),
+    last_date = map(data, ~ max(.x[["date"]]))) %>%
+  filter(n_rows > 2) %>% 
+  mutate(prophet_range = map_chr(data, ~ suppressWarnings(
+    get_prophet_prediction(.x[["totalEvents"]], start_date = start,  daily.seasonality = TRUE)
+  ))) %>%
+  mutate(last_day = map_dbl(data, ~ last(.x[["totalEvents"]]))) %>% # this is the last day ; we'll compare against it
+  separate(prophet_range,
+           into = c("min", "estimate", "max"),
+           sep = ",") %>%
+  mutate(
+    prophet_lower_range = as.numeric(min),
+    prophet_estimate_point = as.numeric(estimate),
+    prophet_upper_range = as.numeric(max)
+  )
+```
 ## Inspect predictions
 Let's check a random 10 rows of prediction along their actual value on the last day of the run.
 
