@@ -195,7 +195,9 @@ get_prophet_prediction_graph <-
     m <- prophet::prophet(history, holidays = holidays, interval.width = 1)
     # Predict on last day
     future <- prophet::make_future_dataframe(m, periods = 5)
-    forecast <- predict(m, future)
+    forecast <- predict(m, future) %>% 
+      head(nrow(.)-1)
+      tail(1)
     
     # Create a list of lower, upper and point forecast
     plot(m, forecast) +
