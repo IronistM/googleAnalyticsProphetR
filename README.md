@@ -215,6 +215,7 @@ alert_data <- prophet_data %>%
    # Plot the alert evolution
    walk(prophet_gg, plot)
 ```
+![image-prophet-graph](https://github.com/IronistM/googleAnalyticsProphetR/blob/master/Images/events_prophet.jpeg "Graph")
 
 # Extension(s)
 Now, you can push the above into Slack (using [`Slackr`](https://github.com/hrbrmstr/slackr)) or send an email (using [`blastula`](https://github.com/rich-iannone/blastula) for example).
