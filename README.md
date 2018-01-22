@@ -96,6 +96,16 @@ Now, we can check what we got data via a summary of the `ga_data`. You can use b
 ga_data %>%
   skimr::skim_to_wide()
 ```
+|type      |variable                  |missing |complete |n    |min        |max        |empty |n_unique |median     |mean    |sd     |p25 |p75 |hist     |
+|:---------|:-------------------------|:-------|:--------|:----|:----------|:----------|:-----|:--------|:----------|:-------|:------|:---|:---|:--------|
+|character |channelGrouping           |0       |3000     |3000 |3          |13         |0     |11       |NA         |NA      |NA     |NA  |NA  |NA       |
+|character |deviceCategory            |0       |3000     |3000 |6          |7          |0     |3        |NA         |NA      |NA     |NA  |NA  |NA       |
+|character |eventAction               |0       |3000     |3000 |11         |19         |0     |4        |NA         |NA      |NA     |NA  |NA  |NA       |
+|character |landingContentGroup1      |0       |3000     |3000 |4          |15         |0     |9        |NA         |NA      |NA     |NA  |NA  |NA       |
+|character |sourcePropertyDisplayName |0       |3000     |3000 |33         |37         |0     |3        |NA         |NA      |NA     |NA  |NA  |NA       |
+|Date      |date                      |0       |3000     |3000 |2017-07-01 |2017-07-15 |NA    |15       |2017-07-07 |NA      |NA     |NA  |NA  |NA       |
+|numeric   |totalEvents               |0       |3000     |3000 |26         |39625      |NA    |NA       |181        |1460.48 |3921.3 |52  |645 |▇▁▁▁▁▁▁▁ |
+
 
 ### Interlude : The tricky part
 You will need to do your own sanity check of inputs to the data that we pass to prophet object! This is out of the scope of the current implementation. So use the section below for passing over the constrains you'd like to, in other words create filters...
