@@ -161,6 +161,20 @@ prophet_data %>%
   sample_n(10)
 ```
 
+|eventAction         |sourcePropertyDisplayName         |channelGrouping |deviceCategory |landingContentGroup1 | n_rows|last_date | last_day| prophet_estimate_point|
+|:-------------------|:---------------------------------|:---------------|:--------------|:--------------------|------:|:---------|--------:|----------------------:|
+|engagement         |Blog - Live |Direct          |desktop        |post_list            |      9|17550     |        1|                   1.00|
+|post_list.loaded    |Blog - Live |SEM Brand       |mobile         |post         |     82|17552     |      609|                 375.29|
+|post.loaded |Blog - Live |SEM Non Brand   |mobile         |home                 |     82|17552     |     2320|                1553.62|
+|engagement         |Blog - Live |SEM Non Brand   |desktop        |post         |     82|17552     |      382|                 318.80|
+|post_list.loaded    |Blog - Live |Direct          |desktop        |home                 |     82|17552     |     7451|                6500.48|
+|post.loaded |Blog - Live |Non Brand SEO   |desktop        |post_list            |     82|17552     |     6045|                4957.95|
+|post.loaded |Blog - Live |Non Brand SEO   |mobile         |(not set)            |     82|17552     |       95|                  60.29|
+|engagement         |Blog - Live |SEM Brand       |mobile         |home                 |     82|17552     |     5185|                3723.87|
+|post.loaded |Blog - Live |Direct          |mobile         |home                 |     82|17552     |     1828|                1179.51|
+|engagement         |Blog - Live |Non Brand SEO   |mobile         |post         |     82|17552     |      281|                 221.15|
+
+
 ## Get Alert
 Next, we pull all the deviating cases.    
 (*NOTE* : If this section is empty then we have no anomalous case)
