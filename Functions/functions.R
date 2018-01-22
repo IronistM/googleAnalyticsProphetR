@@ -60,7 +60,7 @@ get_ga_data <-
     }
     # googleAuthR::gar_auth(".httr-oauth")
     # Create a dataframe
-    df <- googleAnalyticsR::google_analytics(
+    df <- googleAnalyticsR::google_analytics_4(
       viewId = id,
       date_range = c(startdate, enddate),
       # start = startdate,
