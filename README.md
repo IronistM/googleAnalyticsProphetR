@@ -192,6 +192,29 @@ alert_data <- prophet_data %>%
   filter(flag > 0) %>%
   dplyr::select(-min, -max, -estimate, -data) %>%
   mutate_at(vars(starts_with("prophet_")), funs(round(., digits = 2)))
+  
+   alert_graph <- prophet_data %>%
+    rowwise() %>%
+    filter(prophet_lower_range > 0) %>%
+    mutate(flag = if_else(
+      between(last_day, prophet_lower_range, prophet_upper_range),
+      0,
+      1
+    )) %>%
+    filter(flag > 0) %>%
+    dplyr::select(-min, -max, -estimate) %>%
+    ungroup() %>%
+    mutate(prophet_gg = map(
+      data,
+      ~ get_prophet_prediction_graph(
+        .$"totalEvents",
+        start_date = start,
+        daily.seasonality = TRUE
+      )
+    )) %$%
+   # Plot the alert evolution
+   walk(prophet_gg, plot)
 ```
+
 # Extension(s)
 Now, you can push the above into Slack (using [`Slackr`](https://github.com/hrbrmstr/slackr)) or send an email (using [`blastula`](https://github.com/rich-iannone/blastula) for example).
